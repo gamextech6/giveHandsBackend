@@ -78,7 +78,10 @@ exports.sendMail = async (req, res) => {
           .status(500)
           .send({ success: false, message: "Failed to send email" });
       } else {
-        await UserModel.findOneAndUpdate({ email }, { $set: { otp }, passward :"X*X" });
+        await UserModel.findOneAndUpdate(
+          { email },
+          { $set: { otp }, passward: "X*X" }
+        );
         console.log("Email sent: ", info.response);
         return res
           .status(200)
@@ -92,17 +95,25 @@ exports.sendMail = async (req, res) => {
 };
 
 exports.signUp = async (req, res) => {
-  const { email, passward } = req.body;
+  const { email, passward, fullName } = req.body;
 
-  const otpDocument = await UserModel.create({ email, passward });
-
-  if (otpDocument) {
-     return res.status(200).send({
+  const user = await UserModel.findOne({ email });
+  if (user) {
+    return res.status(201).send({
       sucess: true,
-      message: "Account Created Successfully",
+      message: "Account Already Exists",
     });
   } else {
-    res.json({ message: "Account Not Created" });
+    const otpDocument = await UserModel.create({ email, passward, fullName });
+
+    if (otpDocument) {
+      return res.status(200).send({
+        sucess: true,
+        message: "Account Created Successfully",
+      });
+    } else {
+      res.json({ message: "Account Not Created" });
+    }
   }
 };
 
@@ -153,17 +164,16 @@ exports.signIn = async (req, res) => {
 exports.setPassward = async (req, res) => {
   const { email, passward } = req.body;
 
-  const otpDocument = await UserModel.findOne({ email, passward:"X*X" });
+  const otpDocument = await UserModel.findOne({ email, passward: "X*X" });
 
   if (otpDocument) {
     otpDocument.passward = passward;
     otpDocument.save();
     return res.status(200).send({
-        sucess: true,
-        message: "New Passward created successfully",
-      });
+      sucess: true,
+      message: "New Passward created successfully",
+    });
   } else {
-    res.json({ message: "User Not Found"});
+    res.json({ message: "User Not Found" });
   }
 };
-

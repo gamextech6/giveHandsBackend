@@ -12,8 +12,7 @@ const userSchema = new mongoose.Schema({
   passward:{
     type: String,
   },
-  firstName: String,
-  lastName: String,
+  fullName: String,
   gender: String,
   dob: String,
   
