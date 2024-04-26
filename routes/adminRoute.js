@@ -18,7 +18,8 @@ const {
     userWithdrawlRequest,
     aproveWithdrawl,
     allWithdrawl, 
-    userWithdrawlRequestByWithdrawlID
+    userWithdrawlRequestByWithdrawlID,
+    requestCall
 
 } = require("../controller/adminController");
 const upload = multer({ storage: multer.memoryStorage() });
@@ -38,6 +39,6 @@ router.post("/userWithdrawlRequest", userWithdrawlRequest);
 router.post("/aproveWithdrawl", aproveWithdrawl);
 router.post("/allWithdrawl", allWithdrawl);
 router.post("/userWithdrawlRequestByWithdrawlID", userWithdrawlRequestByWithdrawlID);
-
+router.post("/requested-call", requestCall);
 
 module.exports = router;

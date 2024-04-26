@@ -1,11 +1,19 @@
 const AdminModel = require("../models/adminModel");
 const UserModel = require("../models/userModel");
+const RequestedCallModel = require("../models/requestCallModel")
+const FundraiseModel = require("../models/fundraisModel")
 const Notification = require("../models/notifications");
 const axios = require("axios");
 const AWS = require("aws-sdk");
 // const { Storage } = require('@google-cloud/storage');
 // const storage = new Storage();
 const nodemailer = require("nodemailer");
+
+const s3 = new AWS.S3({
+  region: process.env.REGION, 
+  accessKeyId: process.env.ACCESS_KEY_Id,
+  secretAccessKey: process.env.SECRET_ACCESS_KEY,
+});
 
 function generateOTP() {
   const otpLength = 6;
@@ -103,7 +111,7 @@ exports.signUp = async (req, res) => {
       sucess: true,
       message: "Account Already Exists",
     });
-  } else {
+  } else if(passward.length>0) {
     const otpDocument = await UserModel.create({ email, passward, fullName });
 
     if (otpDocument) {
@@ -175,5 +183,77 @@ exports.setPassward = async (req, res) => {
     });
   } else {
     res.json({ message: "User Not Found" });
+  }
+};
+
+exports.requestCall  = async (req, res) => {
+  const { fullName, email, phoneNumber } = req.body;
+
+  const user = await RequestedCallModel.findOne({ email });
+  if (user) {
+    return res.status(201).send({
+      sucess: true,
+      message: "Your Request Already Exists",
+    });
+  } else {
+    const otpDocument = await RequestedCallModel.create({ email, phoneNumber, fullName });
+
+    if (otpDocument) {
+      return res.status(200).send({
+        sucess: true,
+        message: "Your Request Created Successfully",
+      });
+    } else {
+      res.json({ message: "Your Request Not Created" });
+    }
+  }
+};
+
+exports.userFundraiseRequest = async (req, res) => {
+  const { fullName, email, phoneNumber, category, subCategory, title, description } = req.body;
+
+  const newFundraise = await FundraiseModel.create({ fullName, email, phoneNumber, category, subCategory, title, description });
+
+  const photos = [];
+  const documents = [];
+
+  if (req.files["photo"]) {
+    for (const photo of req.files["photo"]) {
+      const photoKey = `photo/${email}/${Date.now()}-${photo.originalname}`;
+      const photoParams = {
+        Bucket: process.env.PHOTO_BUCKET,
+        Key: photoKey,
+        Body: photo.buffer,
+      };
+      const s3UploadPhotoResponse = await s3.upload(photoParams).promise();
+      photos.push(s3UploadPhotoResponse.Location);
+    }
+    newFundraise.photo = photos;
+  }
+
+  if (req.files["document"]) {
+    for (const document of req.files["document"]) {
+      const documentKey = `document/${email}/${Date.now()}-${document.originalname}`;
+      const documentParams = {
+        Bucket: process.env.DOCUMENT_BUCKET,
+        Key: documentKey,
+        Body: document.buffer,
+      };
+      const s3UploadDocumentResponse = await s3.upload(documentParams).promise();
+      documents.push(s3UploadDocumentResponse.Location);
+    }
+    newFundraise.document = documents;
+  }
+
+  await newFundraise.save();
+
+  if (newFundraise) {
+    return res.status(200).json({
+      success: true,
+      message: "New User Fundraise Request created successfully",
+      newFundraise
+    });
+  } else {
+    return res.status(500).json({ message: "New User Fundraise Request is not created" });
   }
 };

@@ -11,6 +11,7 @@ const userSchema = new mongoose.Schema({
   },
   passward:{
     type: String,
+    require: true
   },
   fullName: String,
   gender: String,

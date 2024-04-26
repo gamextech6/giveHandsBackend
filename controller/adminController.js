@@ -1,6 +1,7 @@
 const AdminModel = require("../models/adminModel");
 const UserModel = require("../models/userModel");
 const Notification = require("../models/notifications");
+const RequestedCallModel = require("../models/requestCallModel")
 const axios = require('axios');
 const AWS = require("aws-sdk");
 // const { Storage } = require('@google-cloud/storage');
@@ -221,7 +222,6 @@ exports.deleteNotificationsByMessage = async (req, res) => {
   }
 };
 
-
 exports.userWithdrawlRequest = async (req, res) => {
   try {
     const withdrawlRequests = await UserTransactionsModel.find({ withdrawl_done: false });
@@ -307,6 +307,36 @@ exports.allWithdrawl = async (req, res) => {
   }
 };
 
+exports.requestCall = async (req, res) => {
+  const { page = 1, limit = 10 } = req.query;
+  const pageNumber = parseInt(page);
+  const limitNumber = parseInt(limit);
 
+  try {
+    const totalRequestedCalls = await RequestedCallModel.countDocuments();
+    const totalPages = Math.ceil(totalRequestedCalls / limitNumber);
 
+    const requestedCall = await RequestedCallModel.find()
+      .limit(limitNumber)
+      .skip((pageNumber - 1) * limitNumber);
 
+    if (requestedCall.length > 0) {
+      return res.status(200).send({
+        success: true,
+        message: "Requested Call List.",
+        currentPage: pageNumber,
+        totalPages: totalPages,
+        requestedCall,
+      });
+    } else {
+      return res.status(200).send({
+        success: true,
+        message: "No new Call Request found.",
+        requestedCall: [],
+      });
+    }
+  } catch (error) {
+    console.error("Error on submitting:", error);
+    res.status(500).json({ error: "Internal server error" });
+  }
+};
