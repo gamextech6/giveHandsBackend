@@ -1,7 +1,8 @@
 const AdminModel = require("../models/adminModel");
 const UserModel = require("../models/userModel");
 const Notification = require("../models/notifications");
-const RequestedCallModel = require("../models/requestCallModel")
+const RequestedCallModel = require("../models/requestCallModel");
+const FundraisModel = require("../models/fundraisModel")
 const axios = require('axios');
 const AWS = require("aws-sdk");
 // const { Storage } = require('@google-cloud/storage');
@@ -47,6 +48,51 @@ exports.getUserByEmail = async (req, res) => {
     res.status(200).send({
       sucess: true,
       message: "User get successfully",
+      data: user,
+    });
+    // res.send({ users });
+  } catch (error) {
+    console.error("Error searching for users:", error);
+    res.status(500).send({ error: "Internal server error" });
+  }
+};
+
+exports.getRequestByEmail = async (req, res) => {
+  try {
+    const { email } = req.params;
+    const user = await RequestedCallModel.find({ email });
+    if(!user){
+      res.status(201).send({
+        sucess: false,
+        message: "User Not Found",
+      });
+    }
+    res.status(200).send({
+      sucess: true,
+      message: "User get successfully",
+      data: user,
+    });
+    // res.send({ users });
+  } catch (error) {
+    console.error("Error searching for users:", error);
+    res.status(500).send({ error: "Internal server error" });
+  }
+};
+
+exports.changeStatusByEmail = async (req, res) => {
+  try {
+    const { email } = req.params;
+    const { status } = req.body;
+    const user = await RequestedCallModel.findOneAndUpdate({ email }, { $set: { status: status} });
+    if(!user){
+      return res.status(201).send({
+        sucess: false,
+        message: "User Not Found",
+      });
+    }
+    return res.status(200).send({
+      sucess: true,
+      message: "User Updated Successfully",
       data: user,
     });
     // res.send({ users });
@@ -337,6 +383,88 @@ exports.requestCall = async (req, res) => {
     }
   } catch (error) {
     console.error("Error on submitting:", error);
+    res.status(500).json({ error: "Internal server error" });
+  }
+};
+
+exports.fundraisRequests = async (req, res) => {
+  const { page = 1, limit = 10 } = req.query;
+  const pageNumber = parseInt(page);
+  const limitNumber = parseInt(limit);
+
+  try {
+    const totalRequestedCalls = await FundraisModel.countDocuments();
+    const totalPages = Math.ceil(totalRequestedCalls / limitNumber);
+
+    const requestedCall = await FundraisModel.find()
+      .limit(limitNumber)
+      .skip((pageNumber - 1) * limitNumber);
+
+    if (requestedCall.length > 0) {
+      return res.status(200).send({
+        success: true,
+        message: "Fundraise Request List.",
+        currentPage: pageNumber,
+        totalPages: totalPages,
+        requestedCall,
+      });
+    } else {
+      return res.status(200).send({
+        success: true,
+        message: "No new Call Request found.",
+        requestedCall: [],
+      });
+    }
+  } catch (error) {
+    console.error("Error on submitting:", error);
+    res.status(500).json({ error: "Internal server error" });
+  }
+};
+
+exports.fundraisRequestByEmail = async (req, res) => {
+  try {
+    const { email } = req.params;
+    const user = await FundraisModel.find({ email });
+    if(!user){
+      res.status(201).send({
+        sucess: false,
+        message: "Fundrais Event Not Found",
+      });
+    }
+    res.status(200).send({
+      sucess: true,
+      message: "Fundrais Event get successfully",
+      data: user,
+    });
+    // res.send({ users });
+  } catch (error) {
+    console.error("Error searching for users:", error);
+    res.status(500).send({ error: "Internal server error" });
+  }
+};
+
+exports.updateFundraisRequestByEmail = async (req, res) => {
+  try {
+    const { email } = req.params;
+    const updates = req.body; // New details to update
+
+    // Find the fundraiser request by email and update it with the new details
+    const user = await FundraisModel.findOneAndUpdate({ email }, { $set: updates }, { new: true });
+
+    if (!user) {
+      return res.status(404).json({
+        success: false,
+        message: "Fundraiser Event Not Found",
+      });
+    }
+
+    return res.status(200).json({
+      success: true,
+      message: "Fundraiser Event updated successfully",
+      data: user,
+    });
+  } catch (error) {
+    console.error("Error updating fundraiser event:", error);
     res.status(500).json({ error: "Internal server error" });
   }
 };

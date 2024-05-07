@@ -19,14 +19,20 @@ const {
     aproveWithdrawl,
     allWithdrawl, 
     userWithdrawlRequestByWithdrawlID,
-    requestCall
+
+    requestCall,
+    getRequestByEmail,
+    changeStatusByEmail,
+    fundraisRequests,
+    fundraisRequestByEmail,
+    updateFundraisRequestByEmail
 
 } = require("../controller/adminController");
 const upload = multer({ storage: multer.memoryStorage() });
 
 router.post("/admin-login", adminLogin);
 router.post("/gettotal-user", getUserCount);
-router.post("/getuser/:eamil", getUserByEmail);
+router.post("/getuser/:email", getUserByEmail);
 router.post("/block-user", blockUser);
 router.post("/unblock-user", unblockUser);
 router.post("/notifications/send-to-all", sendToAllUserNotification);
@@ -40,5 +46,10 @@ router.post("/aproveWithdrawl", aproveWithdrawl);
 router.post("/allWithdrawl", allWithdrawl);
 router.post("/userWithdrawlRequestByWithdrawlID", userWithdrawlRequestByWithdrawlID);
 router.post("/requested-call", requestCall);
+router.post("/get-request/:email", getRequestByEmail);
+router.post("/change-status/:email", changeStatusByEmail);
+router.post("/fundrais-requests", fundraisRequests);
+router.post("/fundrais-request/:email", fundraisRequestByEmail);
+router.post("/update-fundrais/:email", updateFundraisRequestByEmail);
 
 module.exports = router;

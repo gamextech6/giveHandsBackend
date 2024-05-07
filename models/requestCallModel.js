@@ -19,6 +19,11 @@ const requestCallModel = new mongoose.Schema({
   message:{
     type: String
   },
+  status: {
+    type: String,
+    enum: ['done', 'pending', 'not_seen'], 
+    default: 'not_seen'
+},
   updatedOn:{
     type: Date,
   }
