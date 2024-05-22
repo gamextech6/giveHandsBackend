@@ -257,3 +257,36 @@ exports.userFundraiseRequest = async (req, res) => {
     return res.status(500).json({ message: "New User Fundraise Request is not created" });
   }
 };
+
+exports.getAllFundraises = async (req, res) => {
+  try {
+    const fundraises = await FundraiseModel.find();
+    res.status(200).json(fundraises);
+  } catch (err) {
+    res.status(500).json({ message: err.message });
+  }
+};
+
+exports.getFundraisesByCategory = async (req, res) => {
+  try {
+    const category = req.params.category;
+    const fundraises = await FundraiseModel.find({ category });
+    res.status(200).json(fundraises);
+  } catch (err) {
+    res.status(500).json({ message: err.message });
+  }
+};
+
+exports.getFundraiseById = async (req, res) => {
+  try {
+    const id = req.params.id;
+    const fundraise = await FundraiseModel.findById(id);
+    if (!fundraise) {
+      return res.status(404).json({ message: 'Fundraise not found' });
+    }
+    res.status(200).json(fundraise);
+  } catch (err) {
+    res.status(500).json({ message: err.message });
+  }
+};
+
