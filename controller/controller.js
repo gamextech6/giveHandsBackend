@@ -269,7 +269,7 @@ exports.getAllFundraises = async (req, res) => {
 
 exports.getFundraisesByCategory = async (req, res) => {
   try {
-    const category = req.params.category;
+    const { category } = req.body;
     const fundraises = await FundraiseModel.find({ category });
     res.status(200).json(fundraises);
   } catch (err) {
@@ -279,7 +279,7 @@ exports.getFundraisesByCategory = async (req, res) => {
 
 exports.getFundraiseById = async (req, res) => {
   try {
-    const id = req.params.id;
+    const { id } = req.body;
     const fundraise = await FundraiseModel.findById(id);
     if (!fundraise) {
       return res.status(404).json({ message: 'Fundraise not found' });
@@ -289,4 +289,3 @@ exports.getFundraiseById = async (req, res) => {
     res.status(500).json({ message: err.message });
   }
 };
-

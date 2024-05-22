@@ -1,46 +1,64 @@
 const mongoose = require('mongoose');
 
-const fundraisModel = new mongoose.Schema({
+const fundraisSchema = new mongoose.Schema({
   fullName: {
     type: String,
-    required: true,
-  },
+   },
   email: {
     type: String,
-    required: true,
-  },
+   },
   phoneNumber: {
     type: String
   },
-  category:{
+  category: {
     type: String,
-    required: true,
-  },
-  subCategory:{
+   },
+  subCategory: {
     type: String
   },
-  title:{
+  title: {
     type: String,
-    required: true,
+   },
+  description: {
+    type: String,
+   },
+  age: {
+    type: Number,
+    required: true
   },
-  description:{
+  targetAmount: {
+    type: Number,
+    required: true
+  },
+  gender: {
     type: String,
-    required: true,
+    required: true
+  },
+  location: {
+    type: String,
+    required: true
+  },
+  endDate: {
+    type: Date,
   },
   photo: [String], 
   document: [String], 
-  createdOn:{
+  createdOn: {
     type: Date,
-    default: Date.now(),
+    default: Date.now,
   },
-  message:{
+  message: {
     type: String
   },
-  updatedOn:{
+  updatedOn: {
     type: Date,
-  }
+  },
+  supportEvents: [{
+    type: mongoose.Schema.Types.ObjectId,
+    ref: 'SupportEvent'
+  }]
 });
 
-const FundraiseModel = mongoose.model('Fundraise', fundraisModel);
+const Fundraise = mongoose.model('Fundraise', fundraisSchema);
 
-module.exports = FundraiseModel;
+module.exports = Fundraise;

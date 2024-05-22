@@ -3,11 +3,9 @@ const mongoose = require('mongoose');
 const donationSchema = new mongoose.Schema({
   donorName: {
     type: String,
-    required: true
   },
   amount: {
     type: Number,
-    required: true
   },
   timestamp: {
     type: Date,
@@ -18,11 +16,9 @@ const donationSchema = new mongoose.Schema({
 const supportEventSchema = new mongoose.Schema({
   organizer: {
     type: String,
-    required: true
   },
   description: {
     type: String,
-    required: true
   },
   donationProtected: {
     type: Boolean,
@@ -30,7 +26,7 @@ const supportEventSchema = new mongoose.Schema({
   },
   inMemoryOf: {
     type: String,
-    required: true
+ 
   },
   eventDate: {
     type: Date,
@@ -38,11 +34,9 @@ const supportEventSchema = new mongoose.Schema({
   },
   location: {
     type: String,
-    required: true
   },
   targetAmount: {
     type: Number,
-    required: true
   },
   currentAmount: {
     type: Number,
@@ -52,15 +46,12 @@ const supportEventSchema = new mongoose.Schema({
   wordsOfSupport: [{
     supporterName: {
       type: String,
-      required: true
     },
     message: {
       type: String,
-      required: true
     },
     donationAmount: {
       type: Number,
-      required: true
     },
     timestamp: {
       type: Date,

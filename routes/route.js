@@ -30,8 +30,10 @@ router.post("/set-new-passward", setPassward);
 router.post("/request-call", requestCall);
 router.post("/fundraise-request", upload, userFundraiseRequest);
 router.post('/fundraises', getAllFundraises);
-router.post('/fundraises/:category', getFundraisesByCategory);
-router.post('/fundraises/:id', getFundraiseById);
+router.post('/fundraisesbycatagory', getFundraisesByCategory);
+router.post('/fundraisebyid', getFundraiseById);
+
+
 // router.post("/upload-pan/:phoneNumber", upload.single('pan'), uploadPan);
 // router.post("/upload-aadhar/:phoneNumber", upload.single('aadhar'), uploadAadhar);
 
