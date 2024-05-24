@@ -210,53 +210,73 @@ exports.requestCall  = async (req, res) => {
 };
 
 exports.userFundraiseRequest = async (req, res) => {
-  const { fullName, email, phoneNumber, category, subCategory, title, description } = req.body;
+  try {
+    const { fullName, email, phoneNumber, category, subCategory, title, description, age, targetAmount, gender, location, endDate } = req.body;
 
-  const newFundraise = await FundraiseModel.create({ fullName, email, phoneNumber, category, subCategory, title, description });
-
-  const photos = [];
-  const documents = [];
-
-  if (req.files["photo"]) {
-    for (const photo of req.files["photo"]) {
-      const photoKey = `photo/${email}/${Date.now()}-${photo.originalname}`;
-      const photoParams = {
-        Bucket: process.env.PHOTO_BUCKET,
-        Key: photoKey,
-        Body: photo.buffer,
-      };
-      const s3UploadPhotoResponse = await s3.upload(photoParams).promise();
-      photos.push(s3UploadPhotoResponse.Location);
-    }
-    newFundraise.photo = photos;
-  }
-
-  if (req.files["document"]) {
-    for (const document of req.files["document"]) {
-      const documentKey = `document/${email}/${Date.now()}-${document.originalname}`;
-      const documentParams = {
-        Bucket: process.env.DOCUMENT_BUCKET,
-        Key: documentKey,
-        Body: document.buffer,
-      };
-      const s3UploadDocumentResponse = await s3.upload(documentParams).promise();
-      documents.push(s3UploadDocumentResponse.Location);
-    }
-    newFundraise.document = documents;
-  }
-
-  await newFundraise.save();
-
-  if (newFundraise) {
-    return res.status(200).json({
-      success: true,
-      message: "New User Fundraise Request created successfully",
-      newFundraise
+    // Create a new fundraise request with the given fields
+    const newFundraise = await FundraiseModel.create({
+      fullName,
+      email,
+      phoneNumber,
+      category,
+      subCategory,
+      title,
+      description,
+      age,
+      targetAmount,
+      gender,
+      location,
+      endDate
     });
-  } else {
-    return res.status(500).json({ message: "New User Fundraise Request is not created" });
+
+    const photos = [];
+    const documents = [];
+
+    if (req.files["photo"]) {
+      for (const photo of req.files["photo"]) {
+        const photoKey = `photo/${email}/${Date.now()}-${photo.originalname}`;
+        const photoParams = {
+          Bucket: process.env.PHOTO_BUCKET,
+          Key: photoKey,
+          Body: photo.buffer,
+        };
+        const s3UploadPhotoResponse = await s3.upload(photoParams).promise();
+        photos.push(s3UploadPhotoResponse.Location);
+      }
+      newFundraise.photo = photos;
+    }
+
+    if (req.files["document"]) {
+      for (const document of req.files["document"]) {
+        const documentKey = `document/${email}/${Date.now()}-${document.originalname}`;
+        const documentParams = {
+          Bucket: process.env.DOCUMENT_BUCKET,
+          Key: documentKey,
+          Body: document.buffer,
+        };
+        const s3UploadDocumentResponse = await s3.upload(documentParams).promise();
+        documents.push(s3UploadDocumentResponse.Location);
+      }
+      newFundraise.document = documents;
+    }
+
+    await newFundraise.save();
+
+    if (newFundraise) {
+      return res.status(200).json({
+        success: true,
+        message: "New User Fundraise Request created successfully",
+        newFundraise
+      });
+    } else {
+      return res.status(500).json({ message: "New User Fundraise Request is not created" });
+    }
+  } catch (error) {
+    console.error("Error creating fundraise request:", error);
+    return res.status(500).json({ message: "An error occurred while creating the fundraise request", error: error.message });
   }
 };
+
 
 exports.getAllFundraises = async (req, res) => {
   try {
