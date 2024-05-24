@@ -8,7 +8,8 @@ const {
     verifyOTP,
     signIn,
     setPassward,
-    requestCall, 
+    requestCall,
+    contact, 
     userFundraiseRequest,
     getAllFundraises,
     getFundraisesByCategory,
@@ -28,6 +29,7 @@ router.post("/verify-otp", verifyOTP);
 router.post("/sign-in", signIn);
 router.post("/set-new-passward", setPassward);
 router.post("/request-call", requestCall);
+router.post("/contest-us", contact);
 router.post("/fundraise-request", upload, userFundraiseRequest);
 router.post('/fundraises', getAllFundraises);
 router.post('/fundraisesbycatagory', getFundraisesByCategory);

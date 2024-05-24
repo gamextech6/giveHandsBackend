@@ -97,6 +97,9 @@ const fundraisSchema = new mongoose.Schema({
   subCategory: {
     type: String
   },
+  subCategory1:{
+    type: String
+  },
   title: {
     type: String,
   },

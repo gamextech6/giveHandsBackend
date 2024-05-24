@@ -1,6 +1,7 @@
 const AdminModel = require("../models/adminModel");
 const UserModel = require("../models/userModel");
 const RequestedCallModel = require("../models/requestCallModel")
+const ContactUsModel = require("../models/contactUsModel")
 const FundraiseModel = require("../models/fundraisModel")
 const Notification = require("../models/notifications");
 const axios = require("axios");
@@ -209,9 +210,32 @@ exports.requestCall  = async (req, res) => {
   }
 };
 
+exports.contact  = async (req, res) => {
+  const { fullName, email, phoneNumber, message } = req.body;
+
+  const user = await ContactUsModel.findOne({ email });
+  if (user) {
+    return res.status(201).send({
+      sucess: true,
+      message: "Your Request Already Exists",
+    });
+  } else {
+    const otpDocument = await ContactUsModel.create({ email, phoneNumber, fullName, message });
+
+    if (otpDocument) {
+      return res.status(200).send({
+        sucess: true,
+        message: "Your Request Created Successfully",
+      });
+    } else {
+      res.json({ message: "Your Request Not Created" });
+    }
+  }
+};
+
 exports.userFundraiseRequest = async (req, res) => {
   try {
-    const { fullName, email, phoneNumber, category, subCategory, title, description, age, targetAmount, gender, location, endDate } = req.body;
+    const { fullName, email, phoneNumber, category, subCategory, subCategory1, title, description, age, targetAmount, gender, location, endDate } = req.body;
 
     // Create a new fundraise request with the given fields
     const newFundraise = await FundraiseModel.create({
@@ -220,6 +244,7 @@ exports.userFundraiseRequest = async (req, res) => {
       phoneNumber,
       category,
       subCategory,
+      subCategory1,
       title,
       description,
       age,

@@ -1,6 +1,6 @@
 const mongoose = require('mongoose');
 
-const requestCallModel = new mongoose.Schema({
+const contactUsSchema = new mongoose.Schema({
   fullName: {
     type: String,
     required: true,
@@ -16,6 +16,9 @@ const requestCallModel = new mongoose.Schema({
     type: Date,
     default: Date.now(),
   },
+  message:{
+    type: String
+  },
   status: {
     type: String,
     enum: ['done', 'pending', 'not_seen'], 
@@ -26,6 +29,6 @@ const requestCallModel = new mongoose.Schema({
   }
 });
 
-const RequestedCallModel = mongoose.model('RequestedCall', requestCallModel);
+const contactUsModel = mongoose.model('ContactUs', contactUsSchema);
 
-module.exports = RequestedCallModel;
+module.exports = contactUsModel;
