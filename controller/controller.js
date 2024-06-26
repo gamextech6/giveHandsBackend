@@ -1,8 +1,8 @@
 const AdminModel = require("../models/adminModel");
 const UserModel = require("../models/userModel");
-const RequestedCallModel = require("../models/requestCallModel")
-const ContactUsModel = require("../models/contactUsModel")
-const FundraiseModel = require("../models/fundraisModel")
+const RequestedCallModel = require("../models/requestCallModel");
+const ContactUsModel = require("../models/contactUsModel");
+const FundraiseModel = require("../models/fundraisModel");
 const Notification = require("../models/notifications");
 const axios = require("axios");
 const AWS = require("aws-sdk");
@@ -11,7 +11,7 @@ const AWS = require("aws-sdk");
 const nodemailer = require("nodemailer");
 
 const s3 = new AWS.S3({
-  region: process.env.REGION, 
+  region: process.env.REGION,
   accessKeyId: process.env.ACCESS_KEY_Id,
   secretAccessKey: process.env.SECRET_ACCESS_KEY,
 });
@@ -112,7 +112,7 @@ exports.signUp = async (req, res) => {
       sucess: true,
       message: "Account Already Exists",
     });
-  } else if(passward.length>0) {
+  } else if (passward.length > 0) {
     const otpDocument = await UserModel.create({ email, passward, fullName });
 
     if (otpDocument) {
@@ -187,7 +187,7 @@ exports.setPassward = async (req, res) => {
   }
 };
 
-exports.requestCall  = async (req, res) => {
+exports.requestCall = async (req, res) => {
   const { fullName, email, phoneNumber } = req.body;
 
   const user = await RequestedCallModel.findOne({ email });
@@ -197,7 +197,11 @@ exports.requestCall  = async (req, res) => {
       message: "Your Request Already Exists",
     });
   } else {
-    const otpDocument = await RequestedCallModel.create({ email, phoneNumber, fullName });
+    const otpDocument = await RequestedCallModel.create({
+      email,
+      phoneNumber,
+      fullName,
+    });
 
     if (otpDocument) {
       return res.status(200).send({
@@ -210,7 +214,7 @@ exports.requestCall  = async (req, res) => {
   }
 };
 
-exports.contact  = async (req, res) => {
+exports.contact = async (req, res) => {
   const { fullName, email, phoneNumber, message } = req.body;
 
   const user = await ContactUsModel.findOne({ email });
@@ -220,7 +224,12 @@ exports.contact  = async (req, res) => {
       message: "Your Request Already Exists",
     });
   } else {
-    const otpDocument = await ContactUsModel.create({ email, phoneNumber, fullName, message });
+    const otpDocument = await ContactUsModel.create({
+      email,
+      phoneNumber,
+      fullName,
+      message,
+    });
 
     if (otpDocument) {
       return res.status(200).send({
@@ -235,7 +244,21 @@ exports.contact  = async (req, res) => {
 
 exports.userFundraiseRequest = async (req, res) => {
   try {
-    const { fullName, email, phoneNumber, category, subCategory, subCategory1, title, description, age, targetAmount, gender, location, endDate } = req.body;
+    const {
+      fullName,
+      email,
+      phoneNumber,
+      category,
+      subCategory,
+      subCategory1,
+      title,
+      description,
+      age,
+      targetAmount,
+      gender,
+      location,
+      endDate,
+    } = req.body;
 
     // Create a new fundraise request with the given fields
     const newFundraise = await FundraiseModel.create({
@@ -251,7 +274,7 @@ exports.userFundraiseRequest = async (req, res) => {
       targetAmount,
       gender,
       location,
-      endDate
+      endDate,
     });
 
     const photos = [];
@@ -273,13 +296,17 @@ exports.userFundraiseRequest = async (req, res) => {
 
     if (req.files["document"]) {
       for (const document of req.files["document"]) {
-        const documentKey = `document/${email}/${Date.now()}-${document.originalname}`;
+        const documentKey = `document/${email}/${Date.now()}-${
+          document.originalname
+        }`;
         const documentParams = {
           Bucket: process.env.DOCUMENT_BUCKET,
           Key: documentKey,
           Body: document.buffer,
         };
-        const s3UploadDocumentResponse = await s3.upload(documentParams).promise();
+        const s3UploadDocumentResponse = await s3
+          .upload(documentParams)
+          .promise();
         documents.push(s3UploadDocumentResponse.Location);
       }
       newFundraise.document = documents;
@@ -291,17 +318,23 @@ exports.userFundraiseRequest = async (req, res) => {
       return res.status(200).json({
         success: true,
         message: "New User Fundraise Request created successfully",
-        newFundraise
+        newFundraise,
       });
     } else {
-      return res.status(500).json({ message: "New User Fundraise Request is not created" });
+      return res
+        .status(500)
+        .json({ message: "New User Fundraise Request is not created" });
     }
   } catch (error) {
     console.error("Error creating fundraise request:", error);
-    return res.status(500).json({ message: "An error occurred while creating the fundraise request", error: error.message });
+    return res
+      .status(500)
+      .json({
+        message: "An error occurred while creating the fundraise request",
+        error: error.message,
+      });
   }
 };
-
 
 exports.getAllFundraises = async (req, res) => {
   try {
@@ -327,10 +360,52 @@ exports.getFundraiseById = async (req, res) => {
     const { id } = req.body;
     const fundraise = await FundraiseModel.findById(id);
     if (!fundraise) {
-      return res.status(404).json({ message: 'Fundraise not found' });
+      return res.status(404).json({ message: "Fundraise not found" });
     }
     res.status(200).json(fundraise);
   } catch (err) {
     res.status(500).json({ message: err.message });
+  }
+};
+
+exports.createUserProfile = async (req, res) => {
+  const { fullName, phoneNumber, email } = req.body;
+
+  try {
+    // Check if user already exists
+    const user = await UserModel.findOne({ phoneNumber });
+    if (user) {
+      return res.status(400).json({ message: "User Already Exists" });
+    }
+
+    // Create new user
+    const newUser = await UserModel.create({ fullName, phoneNumber, email });
+
+    return res.status(200).json({
+      success: true,
+      message: "User profile created successfully",
+      user: newUser,
+    });
+  } catch (error) {
+    return res.status(500).json({ message: "User profile creation failed", error: error.message });
+  }
+};
+exports.getUserDetails = async (req, res) => {
+  const { id } = req.body;
+
+  try {
+    const user = await UserModel.findById(id);
+    if (!user) {
+      return res.status(404).json({ message: "User not found" });
+    }
+
+    return res.status(200).json({
+      success: true,
+      user,
+    });
+  } catch (error) {
+    return res
+      .status(500)
+      .json({ message: "Failed to fetch user details", error: error.message });
   }
 };

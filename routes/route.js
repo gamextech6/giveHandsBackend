@@ -13,7 +13,9 @@ const {
     userFundraiseRequest,
     getAllFundraises,
     getFundraisesByCategory,
-    getFundraiseById
+    getFundraiseById,
+    createUserProfile,
+    getUserDetails
     } = require("../controller/controller");
 
 
@@ -34,6 +36,9 @@ router.post("/fundraise-request", upload, userFundraiseRequest);
 router.post('/fundraises', getAllFundraises);
 router.post('/fundraisesbycatagory', getFundraisesByCategory);
 router.post('/fundraisebyid', getFundraiseById);
+router.post('/createUsers', createUserProfile);
+router.get('/users', getUserDetails);
+
 
 
 // router.post("/upload-pan/:phoneNumber", upload.single('pan'), uploadPan);

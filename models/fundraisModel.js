@@ -133,6 +133,11 @@ const fundraisSchema = new mongoose.Schema({
   updatedOn: {
     type: Date,
   },
+  status: {
+    type: String,
+    enum: ['done', 'onReview', "posted", "completed",'not_seen'], 
+    default: 'not_seen'
+  },
   supportEvents: [{
     type: mongoose.Schema.Types.ObjectId,
     ref: 'SupportEvent'
