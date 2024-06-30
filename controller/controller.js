@@ -338,7 +338,7 @@ exports.userFundraiseRequest = async (req, res) => {
 
 exports.getAllFundraises = async (req, res) => {
   try {
-    const fundraises = await FundraiseModel.find();
+    const fundraises = await FundraiseModel.find({status:'done'});
     res.status(200).json(fundraises);
   } catch (err) {
     res.status(500).json({ message: err.message });
